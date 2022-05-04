@@ -1,2 +1,2 @@
-# sor4onnx
-Simple OP Renamer for ONNX.
+# [WIP] sor4onnx
+**S**imple **O**P **R**enamer for **ONNX**.
