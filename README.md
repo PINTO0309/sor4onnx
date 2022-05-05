@@ -41,7 +41,7 @@ $ sor4onnx -h
 usage:
   sor4onnx [-h]
   --input_onnx_file_path INPUT_ONNX_FILE_PATH
-  --old_new OLD_NEW OLD_NEW
+  --old_new OLD NEW
   --output_onnx_file_path OUTPUT_ONNX_FILE_PATH
   [--non_verbose]
 
