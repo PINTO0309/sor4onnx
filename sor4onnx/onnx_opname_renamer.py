@@ -166,7 +166,6 @@ def main():
     input_onnx_file_path = args.input_onnx_file_path
     old_new = args.old_new
     output_onnx_file_path = args.output_onnx_file_path
-
     non_verbose = args.non_verbose
 
     # Load
