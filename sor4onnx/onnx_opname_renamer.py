@@ -37,6 +37,7 @@ def rename(
     input_onnx_file_path: Optional[str] = '',
     onnx_graph: Optional[onnx.ModelProto] = None,
     output_onnx_file_path: Optional[str] = '',
+    mode: Optional[str] = 'full',
     non_verbose: Optional[bool] = False,
 ) -> onnx.ModelProto:
     """
@@ -60,6 +61,14 @@ def rename(
     output_onnx_file_path: Optional[str]
         Output onnx file path. If not specified, no ONNX file is output.\n\
         Default: ''
+
+    mode: Optional[str]
+        Specifies the type of node to be replaced.\n\
+        full or inputs or outputs.\n\n\
+        full: Rename all nodes.\n\
+        inputs: Rename only the input node.\n\
+        outputs: Rename only the output node.\n\n\
+        Default: full
 
     non_verbose: Optional[bool]
         Do not show all information logs. Only error logs are displayed.\n\
@@ -93,18 +102,21 @@ def rename(
     graph = gs.import_onnx(onnx_graph)
     graph.cleanup().toposort()
 
-    for graph_input in graph.inputs:
-        graph_input.name = graph_input.name.replace(old_new[0], old_new[1])
+    if mode in ['full', 'inputs']:
+        for graph_input in graph.inputs:
+            graph_input.name = graph_input.name.replace(old_new[0], old_new[1])
 
-    for graph_output in graph.outputs:
-        graph_output.name = graph_output.name.replace(old_new[0], old_new[1])
+    if mode in ['full', 'outputs']:
+        for graph_output in graph.outputs:
+            graph_output.name = graph_output.name.replace(old_new[0], old_new[1])
 
-    for graph_node in graph.nodes:
-        graph_node.name = graph_node.name.replace(old_new[0], old_new[1])
-        for graph_node_input in graph_node.inputs:
-            graph_node_input.name = graph_node_input.name.replace(old_new[0], old_new[1])
-        for graph_node_output in graph_node.outputs:
-            graph_node_output.name = graph_node_output.name.replace(old_new[0], old_new[1])
+    if mode in ['full']:
+        for graph_node in graph.nodes:
+            graph_node.name = graph_node.name.replace(old_new[0], old_new[1])
+            for graph_node_input in graph_node.inputs:
+                graph_node_input.name = graph_node_input.name.replace(old_new[0], old_new[1])
+            for graph_node_output in graph_node.outputs:
+                graph_node_output.name = graph_node_output.name.replace(old_new[0], old_new[1])
 
     graph.cleanup().toposort()
 
@@ -157,6 +169,23 @@ def main():
         help='Output onnx file path.'
     )
     parser.add_argument(
+        '--mode',
+        type=str,
+        choices=[
+            'full',
+            'inputs',
+            'outputs',
+        ],
+        default='full',
+        help=\
+            'Specifies the type of node to be replaced. \n'+
+            'full or inputs or outputs. \n\n'+
+            'full: Rename all nodes. \n'+
+            'inputs: Rename only the input node. \n'+
+            'outputs: Rename only the output node. \n\n'+
+            'Default: full'
+    )
+    parser.add_argument(
         '--non_verbose',
         action='store_true',
         help='Do not show all information logs. Only error logs are displayed.'
@@ -165,6 +194,7 @@ def main():
 
     input_onnx_file_path = args.input_onnx_file_path
     old_new = args.old_new
+    mode = args.mode
     output_onnx_file_path = args.output_onnx_file_path
     non_verbose = args.non_verbose
 
@@ -176,6 +206,7 @@ def main():
         input_onnx_file_path=None,
         onnx_graph=onnx_graph,
         old_new=old_new,
+        mode=mode,
         output_onnx_file_path=output_onnx_file_path,
         non_verbose=non_verbose,
     )
