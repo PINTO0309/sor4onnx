@@ -118,6 +118,15 @@ def rename(
             for graph_node_output in graph_node.outputs:
                 graph_node_output.name = graph_node_output.name.replace(old_new[0], old_new[1])
 
+    # opname auto supplementation
+    # OPs in old ONNX files may be missing opname,
+    # so opname is automatically completed when opname is empty.
+    supplementation_idx = 0
+    for graph_node in graph.nodes:
+        if graph_node.name == '':
+            graph_node.name = f'sor_{graph_node.op}_{supplementation_idx}'
+            supplementation_idx += 1
+
     graph.cleanup().toposort()
 
     # Shape Estimation
