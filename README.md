@@ -35,27 +35,27 @@ $ sor4onnx -h
 
 usage:
   sor4onnx [-h]
-  --input_onnx_file_path INPUT_ONNX_FILE_PATH
-  --old_new OLD_NEW OLD_NEW
-  --output_onnx_file_path OUTPUT_ONNX_FILE_PATH
-  [--mode {full,inputs,outputs}]
-  [--non_verbose]
+  -if INPUT_ONNX_FILE_PATH
+  -on OLD_NEW OLD_NEW
+  -of OUTPUT_ONNX_FILE_PATH
+  [-m {full,inputs,outputs}]
+  [-n]
 
 optional arguments:
   -h, --help
       show this help message and exit.
 
-  --input_onnx_file_path INPUT_ONNX_FILE_PATH
+  -if INPUT_ONNX_FILE_PATH, --input_onnx_file_path INPUT_ONNX_FILE_PATH
       Input onnx file path.
 
-  --old_new OLD_NEW OLD_NEW
+  -on OLD_NEW OLD_NEW, --old_new OLD_NEW OLD_NEW
       All occurrences of substring old replaced by new.
       e.g. --old_new "onnx::" ""
 
-  --output_onnx_file_path OUTPUT_ONNX_FILE_PATH
+  -of OUTPUT_ONNX_FILE_PATH, --output_onnx_file_path OUTPUT_ONNX_FILE_PATH
       Output onnx file path.
 
-  --mode {full,inputs,outputs}
+  -m {full,inputs,outputs}, --mode {full,inputs,outputs}
       Specifies the type of node to be replaced.
       full or inputs or outputs.
       full: Rename all nodes.
@@ -63,7 +63,7 @@ optional arguments:
       outputs: Rename only the output node.
       Default: full
 
-  --non_verbose
+  -n, --non_verbose
       Do not show all information logs. Only error logs are displayed.
 ```
 

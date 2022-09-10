@@ -156,12 +156,14 @@ def rename(
 def main():
     parser = ArgumentParser()
     parser.add_argument(
+        '-if',
         '--input_onnx_file_path',
         type=str,
         required=True,
         help='Input onnx file path.'
     )
     parser.add_argument(
+        '-on',
         '--old_new',
         type=str,
         nargs=2,
@@ -172,12 +174,14 @@ def main():
             '--old_new "onnx::" ""'
     )
     parser.add_argument(
+        '-of',
         '--output_onnx_file_path',
         type=str,
         required=True,
         help='Output onnx file path.'
     )
     parser.add_argument(
+        '-m',
         '--mode',
         type=str,
         choices=[
@@ -195,6 +199,7 @@ def main():
             'Default: full'
     )
     parser.add_argument(
+        '-n',
         '--non_verbose',
         action='store_true',
         help='Do not show all information logs. Only error logs are displayed.'
