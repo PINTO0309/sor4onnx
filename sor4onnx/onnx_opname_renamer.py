@@ -1,6 +1,7 @@
 #! /usr/bin/env python
 
 import sys
+import re
 from argparse import ArgumentParser
 import onnx
 import onnx_graphsurgeon as gs
@@ -31,6 +32,18 @@ class Color:
     BG_DEFAULT     = '\033[49m'
     RESET          = '\033[0m'
 
+MODES = [
+    'full',
+    'inputs',
+    'outputs',
+]
+
+SEARCH_MODES = [
+    'exact_match',
+    'partial_match',
+    'prefix_match',
+    'suffix_match',
+]
 
 def rename(
     old_new: List[str],
@@ -38,6 +51,7 @@ def rename(
     onnx_graph: Optional[onnx.ModelProto] = None,
     output_onnx_file_path: Optional[str] = '',
     mode: Optional[str] = 'full',
+    search_mode: Optional[str] = 'exact_match',
     non_verbose: Optional[bool] = False,
 ) -> onnx.ModelProto:
     """
@@ -68,7 +82,16 @@ def rename(
         full: Rename all nodes.\n\
         inputs: Rename only the input node.\n\
         outputs: Rename only the output node.\n\n\
-        Default: full
+        Default: 'full'
+
+    search_mode: Optional[str]
+        OP name search mode.\n\
+        exact_match or partial_match.\n\n\
+        exact_match: Exact match search for OP name.\n\
+        partial_match: Partial match search for OP name.\n\
+        prefix_match: Prefix match search for OP name.\n\
+        suffix_match: Suffix match search for OP name.\n\n\
+        Default: 'exact_match'
 
     non_verbose: Optional[bool]
         Do not show all information logs. Only error logs are displayed.\n\
@@ -95,6 +118,20 @@ def rename(
         )
         sys.exit(1)
 
+    if mode not in MODES:
+        print(
+            f'{Color.RED}ERROR:{Color.RESET} '+
+            f'The mode must be one of the following. {MODES}'
+        )
+        sys.exit(1)
+
+    if search_mode not in SEARCH_MODES:
+        print(
+            f'{Color.RED}ERROR:{Color.RESET} '+
+            f'The search_mode must be one of the following. {SEARCH_MODES}'
+        )
+        sys.exit(1)
+
     # Loading Graphs
     # onnx_graph If specified, onnx_graph is processed first
     if not onnx_graph:
@@ -104,19 +141,64 @@ def rename(
 
     if mode in ['full', 'inputs']:
         for graph_input in graph.inputs:
-            graph_input.name = graph_input.name.replace(old_new[0], old_new[1])
+            if search_mode == 'exact_match':
+                if graph_input.name == old_new[0]:
+                    graph_input.name = graph_input.name.replace(old_new[0], old_new[1])
+            elif search_mode == 'partial_match':
+                graph_input.name = graph_input.name.replace(old_new[0], old_new[1])
+            elif search_mode == 'prefix_match':
+                graph_input.name = re.sub(f'^{old_new[0]}', f'{old_new[1]}', graph_input.name)
+            elif search_mode == 'suffix_match':
+                graph_input.name = re.sub(f'{old_new[0]}$', f'{old_new[1]}', graph_input.name)
 
     if mode in ['full', 'outputs']:
         for graph_output in graph.outputs:
-            graph_output.name = graph_output.name.replace(old_new[0], old_new[1])
+            if search_mode == 'exact_match':
+                if graph_output.name == old_new[0]:
+                    graph_output.name = graph_output.name.replace(old_new[0], old_new[1])
+            elif search_mode == 'partial_match':
+                graph_output.name = graph_output.name.replace(old_new[0], old_new[1])
+            elif search_mode == 'prefix_match':
+                graph_output.name = re.sub(f'^{old_new[0]}', f'{old_new[1]}', graph_output.name)
+            elif search_mode == 'suffix_match':
+                graph_output.name = re.sub(f'{old_new[0]}$', f'{old_new[1]}', graph_output.name)
 
     if mode in ['full']:
         for graph_node in graph.nodes:
-            graph_node.name = graph_node.name.replace(old_new[0], old_new[1])
+            # OP Name
+            if search_mode == 'exact_match':
+                if graph_node.name == old_new[0]:
+                    graph_node.name = graph_node.name.replace(old_new[0], old_new[1])
+            elif search_mode == 'partial_match':
+                graph_node.name = graph_node.name.replace(old_new[0], old_new[1])
+            elif search_mode == 'prefix_match':
+                graph_node.name = re.sub(f'^{old_new[0]}', f'{old_new[1]}', graph_node.name)
+            elif search_mode == 'suffix_match':
+                graph_node.name = re.sub(f'{old_new[0]}$', f'{old_new[1]}', graph_node.name)
+
+            # OP INPUTS
             for graph_node_input in graph_node.inputs:
-                graph_node_input.name = graph_node_input.name.replace(old_new[0], old_new[1])
+                if search_mode == 'exact_match':
+                    if graph_node_input.name == old_new[0]:
+                        graph_node_input.name = graph_node_input.name.replace(old_new[0], old_new[1])
+                elif search_mode == 'partial_match':
+                    graph_node_input.name = graph_node_input.name.replace(old_new[0], old_new[1])
+                elif search_mode == 'prefix_match':
+                    graph_node_input.name = re.sub(f'^{old_new[0]}', f'{old_new[1]}', graph_node_input.name)
+                elif search_mode == 'suffix_match':
+                    graph_node_input.name = re.sub(f'{old_new[0]}$', f'{old_new[1]}', graph_node_input.name)
+
+            # OP OUTPUTS
             for graph_node_output in graph_node.outputs:
-                graph_node_output.name = graph_node_output.name.replace(old_new[0], old_new[1])
+                if search_mode == 'exact_match':
+                    if graph_node_output.name == old_new[0]:
+                        graph_node_output.name = graph_node_output.name.replace(old_new[0], old_new[1])
+                elif search_mode == 'partial_match':
+                    graph_node_output.name = graph_node_output.name.replace(old_new[0], old_new[1])
+                elif search_mode == 'prefix_match':
+                    graph_node_output.name = re.sub(f'^{old_new[0]}', f'{old_new[1]}', graph_node_output.name)
+                elif search_mode == 'suffix_match':
+                    graph_node_output.name = re.sub(f'{old_new[0]}$', f'{old_new[1]}', graph_node_output.name)
 
     # opname auto supplementation
     # OPs in old ONNX files may be missing opname,
@@ -184,11 +266,7 @@ def main():
         '-m',
         '--mode',
         type=str,
-        choices=[
-            'full',
-            'inputs',
-            'outputs',
-        ],
+        choices=MODES,
         default='full',
         help=\
             'Specifies the type of node to be replaced. \n'+
@@ -197,6 +275,21 @@ def main():
             'inputs: Rename only the input node. \n'+
             'outputs: Rename only the output node. \n\n'+
             'Default: full'
+    )
+    parser.add_argument(
+        '-sm',
+        '--search_mode',
+        type=str,
+        choices=SEARCH_MODES,
+        default='exact_match',
+        help=\
+            'OP name search mode. \n'+
+            'exact_match or partial_match or prefix_match or suffix_match. \n\n'+
+            'exact_match: Exact match search for OP name. \n'+
+            'partial_match: Partial match search for OP name. \n'+
+            'prefix_match: Prefix match search for OP name. \n'+
+            'suffix_match: Suffix match search for OP name. \n\n'+
+            'Default: exact_match'
     )
     parser.add_argument(
         '-n',
@@ -209,6 +302,7 @@ def main():
     input_onnx_file_path = args.input_onnx_file_path
     old_new = args.old_new
     mode = args.mode
+    search_mode = args.search_mode
     output_onnx_file_path = args.output_onnx_file_path
     non_verbose = args.non_verbose
 
@@ -221,6 +315,7 @@ def main():
         onnx_graph=onnx_graph,
         old_new=old_new,
         mode=mode,
+        search_mode=search_mode,
         output_onnx_file_path=output_onnx_file_path,
         non_verbose=non_verbose,
     )

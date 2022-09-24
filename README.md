@@ -39,6 +39,7 @@ usage:
   -on OLD_NEW OLD_NEW
   -of OUTPUT_ONNX_FILE_PATH
   [-m {full,inputs,outputs}]
+  [-sm {exact_match,partial_match,prefix_match,suffix_match}]
   [-n]
 
 optional arguments:
@@ -63,6 +64,15 @@ optional arguments:
       outputs: Rename only the output node.
       Default: full
 
+  -sm {exact_match,partial_match,prefix_match,suffix_match}, --search_mode {exact_match,partial_match,prefix_match,suffix_match}
+      OP name search mode.
+      exact_match or partial_match or prefix_match or suffix_match.
+      exact_match: Exact match search for OP name.
+      partial_match: Partial match search for OP name.
+      prefix_match: Prefix match search for OP name.
+      suffix_match: Suffix match search for OP name.
+      Default: exact_match
+
   -n, --non_verbose
       Do not show all information logs. Only error logs are displayed.
 ```
@@ -80,6 +90,7 @@ rename(
     onnx_graph: Union[onnx.onnx_ml_pb2.ModelProto, NoneType] = None,
     output_onnx_file_path: Union[str, NoneType] = '',
     mode: Union[str, NoneType] = 'full',
+    search_mode: Union[str, NoneType] = 'exact_match',
     non_verbose: Union[bool, NoneType] = False
 ) -> onnx.onnx_ml_pb2.ModelProto
 
@@ -112,6 +123,15 @@ rename(
         outputs: Rename only the output node.
         Default: full
 
+    search_mode: Optional[str]
+        OP name search mode.
+        exact_match or partial_match or prefix_match or suffix_match.
+        exact_match: Exact match search for OP name.
+        partial_match: Partial match search for OP name.
+        prefix_match: Prefix match search for OP name.
+        suffix_match: Suffix match search for OP name.
+        Default: exact_match
+
     non_verbose: Optional[bool]
         Do not show all information logs. Only error logs are displayed.
         Default: False
@@ -127,6 +147,8 @@ rename(
 $ sor4onnx \
 --input_onnx_file_path fusionnet_180x320.onnx \
 --old_new "onnx::" "" \
+--mode full \
+--search_mode prefix_match \
 --output_onnx_file_path fusionnet_180x320_renamed.onnx
 ```
 
@@ -138,6 +160,8 @@ onnx_graph = rename(
   old_new=["onnx::", ""],
   input_onnx_file_path="fusionnet_180x320.onnx",
   output_onnx_file_path="fusionnet_180x320_renamed.onnx",
+  mode="full",
+  search_mode="prefix_match",
 )
 
 # or
@@ -145,6 +169,8 @@ onnx_graph = rename(
 onnx_graph = rename(
   old_new=["onnx::", ""],
   onnx_graph=graph,
+  mode="full",
+  search_mode="prefix_match",
 )
 ```
 
