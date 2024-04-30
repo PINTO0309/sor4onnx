@@ -136,6 +136,11 @@ def rename(
     # onnx_graph If specified, onnx_graph is processed first
     if not onnx_graph:
         onnx_graph = onnx.load(input_onnx_file_path)
+
+    # domain, ir_version
+    domain: str = onnx_graph.domain
+    ir_version: int = onnx_graph.ir_version
+
     graph = gs.import_onnx(onnx_graph)
     graph.cleanup().toposort()
 
@@ -214,9 +219,9 @@ def rename(
     # Shape Estimation
     renamed_graph = None
     try:
-        renamed_graph = onnx.shape_inference.infer_shapes(gs.export_onnx(graph))
+        renamed_graph = onnx.shape_inference.infer_shapes(gs.export_onnx(graph, do_type_check=False, **{'domain': domain, 'ir_version': ir_version}))
     except:
-        renamed_graph = gs.export_onnx(graph)
+        renamed_graph = gs.export_onnx(graph, do_type_check=False, **{'domain': domain, 'ir_version': ir_version})
         if not non_verbose:
             print(
                 f'{Color.YELLOW}WARNING:{Color.RESET} '+
